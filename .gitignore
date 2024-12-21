@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+
+# pytest
+.pytest_cache/
+.coverage
+
+# IDEs
+.vscode/
+
+# Logs
+*.log
+
+# Docker
+.docker/
+
+# Temporary files
+*.tmp
