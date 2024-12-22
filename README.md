@@ -53,15 +53,14 @@ docker compose run --rm tests
 
 4. Use the client:
    ```bash
-   python -m client --type os --cmd ls --params -l
-   python -m client --type compute --expr "2 + 2"
+   python -m graph_server.client --type os --cmd ls --params -l
+   python -m graph_server.client --type compute --expr "2 + 2"
    ```
 
 ## Testing
 
 ```bash
 pytest  # Run tests
-pytest --cov=graph_server --cov-report=html  # Coverage report
 ```
 
 ## Security
