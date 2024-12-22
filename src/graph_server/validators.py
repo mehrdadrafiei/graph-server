@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
-from exceptions import ValidationError
+from graph_server.exceptions import ValidationError
 
 class RequestValidator(ABC):
     """Abstract base class for request validators."""

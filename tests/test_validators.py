@@ -1,6 +1,6 @@
 import pytest
-from validators import JSONRequestValidator
-from exceptions import ValidationError
+from graph_server.validators import JSONRequestValidator
+from graph_server.exceptions import ValidationError
 
 class TestJSONRequestValidator:
     def test_valid_compute_request(self):

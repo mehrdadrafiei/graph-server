@@ -1,5 +1,5 @@
 import pytest
-from server import ZMQServer
+from src.graph_server.server import ZMQServer
 
 
 @pytest.fixture

@@ -14,7 +14,7 @@ A client-server application using ZMQ to process system commands and mathematica
 
 #### Start Server
 ```bash
-docker compose up -d server
+docker compose up server
 ```
 
 #### Run Tests
@@ -25,11 +25,11 @@ docker compose run --rm tests
 #### Use the Client
 1. OS Command:
    ```bash
-   docker compose exec server python -m src.client --type os --cmd ls --params -l
+   docker compose exec server python -m graph_server.client --type os --cmd ls --params -l
    ```
 2. Compute Expression:
    ```bash
-   docker compose exec server python -m src.client --type compute --expr "2 + 2"
+   docker compose exec server python -m graph_server.client --type compute --expr "2 + 2"
    ```
 
 ### Manual Installation

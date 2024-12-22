@@ -1,6 +1,6 @@
 import pytest
-from command_factory import CommandFactory
-from commands import OSCommand, ComputeCommand
+from graph_server.command_factory import CommandFactory
+from graph_server.commands import OSCommand, ComputeCommand
 
 class TestCommandFactory:
     def test_create_os_command(self):
