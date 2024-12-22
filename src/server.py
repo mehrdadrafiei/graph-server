@@ -2,17 +2,22 @@ import zmq.asyncio
 import json
 import logging
 import asyncio
-from typing import Dict, Any
+import os
+from dotenv import load_dotenv
 from contextlib import asynccontextmanager
-from src.exceptions import CommandError
-from src.validators import JSONRequestValidator
-from src.command_factory import CommandFactory
+from exceptions import CommandError
+from validators import JSONRequestValidator
+from command_factory import CommandFactory
+
+load_dotenv()
 
 class ZMQServer:
     """Main server class implementing the Facade pattern."""
     
-    def __init__(self, bind_address: str = "tcp://127.0.0.1:5555", log_level=logging.INFO):
-        self.bind_address = bind_address
+    def __init__(self, log_level=logging.INFO):
+        host = os.getenv('ZMQ_SERVER_HOST', '127.0.0.1')
+        port = os.getenv('ZMQ_SERVER_PORT', '5555')
+        self.bind_address = f"tcp://{host}:{port}"
         self.validator = JSONRequestValidator()
         self.command_factory = CommandFactory()
         self.is_running = False
@@ -91,9 +96,14 @@ class ZMQServer:
         self.is_running = False
         self.logger.info("Server stop requested")
 
-if __name__ == "__main__":
+
+def main():
     server = ZMQServer()
     try:
         asyncio.run(server.start())
     except KeyboardInterrupt:
         print("Server stopped by user")
+
+
+if __name__ == "__main__":
+    main()

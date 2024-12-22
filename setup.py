@@ -12,7 +12,7 @@ setup(
     python_requires=">=3.12",
     entry_points={
         'console_scripts': [
-            'graph-server=src.server:main',
+            'graph-server=server:main',
         ],
     },
 )

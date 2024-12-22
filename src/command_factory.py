@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from src.commands import Command, OSCommand, ComputeCommand
+from commands import Command, OSCommand, ComputeCommand
 
 class CommandFactory:
     """Factory for creating command instances."""

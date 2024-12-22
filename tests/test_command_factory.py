@@ -1,6 +1,6 @@
 import pytest
-from src.command_factory import CommandFactory
-from src.commands import OSCommand, ComputeCommand
+from command_factory import CommandFactory
+from commands import OSCommand, ComputeCommand
 
 class TestCommandFactory:
     def test_create_os_command(self):

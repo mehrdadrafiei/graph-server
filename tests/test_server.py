@@ -1,6 +1,5 @@
 import pytest
 import json
-from src.server import ZMQServer
 
 @pytest.mark.asyncio
 class TestZMQServer:

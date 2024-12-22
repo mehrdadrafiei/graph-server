@@ -22,11 +22,9 @@ class ZMQClient:
 
 def main():
     parser = argparse.ArgumentParser(description='ZMQ Client')
-    parser.add_argument('--type', choices=['os', 'compute'], required=True,
-                        help='Command type (os or compute)')
+    parser.add_argument('--type', choices=['os', 'compute'], required=True, help='Command type (os or compute)')
     parser.add_argument('--cmd', help='Command name for OS commands')
-    parser.add_argument('--params', nargs=argparse.REMAINDER,
-                        help='Parameters for OS commands')
+    parser.add_argument('--params', nargs=argparse.REMAINDER, help='Parameters for OS commands')
     parser.add_argument('--expr', help='Expression for compute commands')
     
     args = parser.parse_args()

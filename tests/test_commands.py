@@ -1,6 +1,6 @@
 import pytest
-from src.commands import ComputeCommand, OSCommand
-from src.exceptions import CommandExecutionError
+from commands import ComputeCommand, OSCommand
+from exceptions import CommandExecutionError
 
 @pytest.mark.asyncio(loop_scope="module")
 class TestOSCommand:
