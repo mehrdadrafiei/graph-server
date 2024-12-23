@@ -1,5 +1,7 @@
-from typing import Dict, Any
-from graph_server.commands import Command, OSCommand, ComputeCommand
+from typing import Any, Dict
+
+from graph_server.commands import Command, ComputeCommand, OSCommand
+
 
 class CommandFactory:
     """Factory for creating command instances."""

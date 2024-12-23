@@ -1,5 +1,6 @@
 from typing import Optional
 
+
 class CommandError(Exception):
     """Base exception for command-related errors."""
     pass

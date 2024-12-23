@@ -1,9 +1,11 @@
-import zmq
-import json
 import argparse
+import json
 import logging
 import uuid
-from typing import Dict, Any
+from typing import Any, Dict
+
+import zmq
+
 
 class ZMQClient:
     def __init__(self, server_address: str = "tcp://localhost:5555"):

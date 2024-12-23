@@ -1,6 +1,8 @@
 import pytest
+
 from graph_server.commands import ComputeCommand, OSCommand
 from graph_server.exceptions import CommandExecutionError
+
 
 @pytest.mark.asyncio(loop_scope="module")
 class TestOSCommand:
