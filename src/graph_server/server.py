@@ -4,10 +4,6 @@ import logging
 import asyncio
 import os
 from dotenv import load_dotenv
-import sys
-from contextlib import asynccontextmanager
-print(sys.path)
-print("Attempting to import...")
 from graph_server.exceptions import CommandError
 from graph_server.validators import JSONRequestValidator
 from graph_server.command_factory import CommandFactory
@@ -15,7 +11,7 @@ from graph_server.command_factory import CommandFactory
 load_dotenv()
 
 class ZMQServer:
-    """Main server class implementing the Facade pattern."""
+    """Main server class"""
     
     def __init__(self, log_level=logging.INFO):
         host = os.getenv('ZMQ_SERVER_HOST', '127.0.0.1')
@@ -24,6 +20,7 @@ class ZMQServer:
         self.validator = JSONRequestValidator()
         self.command_factory = CommandFactory()
         self.is_running = False
+        self.tasks = set()  # Track running tasks
         
         # Configure logging
         logging.basicConfig(
@@ -31,69 +28,77 @@ class ZMQServer:
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
         self.logger = logging.getLogger(__name__)
-    
-    async def handle_request(self, request_json: str) -> str:
+
+    async def handle_request(self, msg_id: bytes, request_json: str, socket) -> None:
         """Process a single client request."""
         try:
             # Parse and validate request
             request = json.loads(request_json)
             self.validator.validate(request)
             
-            # Create and execute command
             command = self.command_factory.create_command(request)
             response = await command.execute()
             
-            return json.dumps(response)
+            await socket.send_multipart([msg_id, json.dumps(response).encode()])
             
         except json.JSONDecodeError:
-            return json.dumps({"error": "Invalid JSON format"})
+            await socket.send_multipart([msg_id, json.dumps({"error": "Invalid JSON format"}).encode()])
         except CommandError as e:
-            return json.dumps({
-                "error": str(e),
-                "command": getattr(e, 'command', None)
-            })
+            await socket.send_multipart([
+                msg_id,
+                json.dumps({
+                    "error": str(e),
+                    "command": getattr(e, 'command', None)
+                }).encode()
+            ])
         except Exception as e:
             self.logger.error(f"Unexpected error: {str(e)}", exc_info=True)
-            return json.dumps({"error": "Internal server error"})
-    
-    @asynccontextmanager
-    async def server_context(self):
-        """Context manager for server socket."""
-        context = zmq.asyncio.Context()
-        socket = context.socket(zmq.REP)
-        socket.bind(self.bind_address)
-        try:
-            yield socket
-        finally:
-            socket.close()
-            context.term()
-    
+            await socket.send_multipart([
+                msg_id,
+                json.dumps({"error": "Internal server error"}).encode()
+            ])
+
     async def start(self) -> None:
         """Start the ZMQ server."""
         self.is_running = True
         self.logger.info(f"Server starting on {self.bind_address}")
         
-        async with self.server_context() as socket:
+        context = zmq.asyncio.Context()
+        socket = context.socket(zmq.ROUTER)
+        socket.bind(self.bind_address)
+        
+        try:
             self.logger.info("Server started successfully")
             while self.is_running:
                 try:
-                    request_json = await socket.recv_string()
-                    self.logger.info(f"Received request: {request_json}")
+                    # Receive message frames [id, message]
+                    frames = await socket.recv_multipart()
+                    if len(frames) != 2:
+                        continue
+                        
+                    msg_id, message = frames
+                    self.logger.info(f"Received request from {msg_id}: {message.decode()}")
                     
-                    response = await self.handle_request(request_json)
-                    await socket.send_string(response)
+                    # Create new task for each request
+                    task = asyncio.create_task(
+                        self.handle_request(msg_id, message.decode(), socket)
+                    )
+                    self.tasks.add(task)
+                    task.add_done_callback(self.tasks.discard)
                     
                 except asyncio.CancelledError:
                     self.logger.info("Server shutdown initiated")
                     break
                 except Exception as e:
                     self.logger.error(f"Error processing request: {str(e)}", exc_info=True)
-                    await socket.send_string(
-                        json.dumps({"error": "Internal server error"})
-                    )
-        
-        self.logger.info("Server shut down")
-    
+        finally:
+            # Wait for all tasks to complete
+            if self.tasks:
+                await asyncio.gather(*self.tasks, return_exceptions=True)
+            socket.close()
+            context.term()
+            self.logger.info("Server shut down")
+
     def stop(self) -> None:
         """Stop the server."""
         self.is_running = False
